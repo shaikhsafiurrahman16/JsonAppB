@@ -1,11 +1,11 @@
 var express = require("express");
 var router = express.Router();
 const Info = require("../models/database/CommInfo");
+const normal = require("../nomal");
 
 router.post("/add", async (req, res) => {
   try {
-    const jsonData = req.body;
-    console.log("Received JSON:", jsonData);
+    const jsonData = normal(req.body);
     const newInfo = new Info(jsonData);
     await newInfo.save();
 
@@ -20,9 +20,7 @@ router.post("/add", async (req, res) => {
 
 router.get("/all", async (req, res) => {
   try {
-    const allInfo = await Info.find()
-      .sort({ order: 1 })
-      .select("-order");
+    const allInfo = await Info.find().sort({ order: 1 }).select("-order");
     res.json({
       message: "Data fetched successfully",
       data: allInfo,
@@ -52,7 +50,8 @@ router.delete("/delete/:id", async (req, res) => {
 
 router.put("/update/:id", async (req, res) => {
   try {
-    const updated = await Info.findByIdAndUpdate(req.params.id, req.body, {
+    const normalize = normal(req.body);
+    const updated = await Info.findByIdAndUpdate(req.params.id, normalize, {
       new: true,
     });
 
